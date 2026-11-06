@@ -26,7 +26,7 @@
     <button type="button" data-close class="absolute top-4 right-5 text-2xl text-charcoal/40 hover:text-burgundy" aria-label="Tutup">×</button>
     <h3 class="font-serif text-2xl text-burgundy">Kirim Testimoni &amp; Rating</h3>
     <p class="text-xs text-charcoal/60 mt-1 mb-5">Testimoni akan tampil di halaman publik setelah disetujui admin.</p>
-    <form method="POST" action="{{ route('testimoni.store') }}" class="space-y-4">
+    <form method="POST" action="{{ route('testimoni.store') }}" enctype="multipart/form-data" class="space-y-4">
         @csrf
         <div><label class="lbl" for="kode">Kode Pemesanan <span class="text-red-600">*</span></label><input id="kode" name="kode" value="{{ old('kode') }}" class="inp font-mono" placeholder="IKG-2026-001">@error('kode')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
         <div><label class="lbl">Rating <span class="text-red-600">*</span></label>
@@ -34,6 +34,11 @@
             <div id="pick" class="flex gap-1">@for ($i = 1; $i <= 5; $i++)<button type="button" data-r="{{ $i }}" class="p-0.5"><svg class="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.5 6 .8-4.4 4.2 1.1 6L10 15l-5.3 3 1.1-6L1.4 7.8l6-.8L10 1.5z"/></svg></button>@endfor</div>
             @error('rating')<p class="text-xs text-red-600 mt-1">Pilih rating bintang.</p>@enderror</div>
         <div><label class="lbl" for="isi">Isi Testimoni <span class="text-red-600">*</span></label><textarea id="isi" name="isi" rows="4" class="inp resize-none" placeholder="Ceritakan pengalaman Anda...">{{ old('isi') }}</textarea>@error('isi')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
+        <div><label class="lbl" for="foto">Foto Bukti <span class="text-charcoal/40 font-normal">(opsional)</span></label>
+            <input id="foto" name="foto" type="file" accept="image/jpeg,image/png,image/webp" class="text-xs w-full">
+            <p class="text-[11px] text-charcoal/50 mt-1">Contoh: foto acara atau hasil layanan. Format JPG/PNG/WEBP, maksimal 2 MB.</p>
+            <img id="fotoPrev" class="hidden mt-2 h-32 rounded-lg border border-gold/30 object-cover" alt="Pratinjau foto">
+            @error('foto')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
         <button class="btn btn-p w-full py-3.5">Kirim Testimoni</button>
     </form>
 </div></div>
@@ -45,5 +50,7 @@ const openModal = id => document.getElementById(id).classList.add('open');
 const inp = document.getElementById('rating'), stars = document.querySelectorAll('#pick svg');
 const paint = () => stars.forEach((s, i) => { s.classList.toggle('text-gold', i < +inp.value); s.classList.toggle('text-gray-300', i >= +inp.value); });
 document.getElementById('pick').onclick = e => { const b = e.target.closest('[data-r]'); if (b) { inp.value = b.dataset.r; paint(); } }; paint();
+const foto = document.getElementById('foto'), prev = document.getElementById('fotoPrev');
+foto.onchange = () => { const f = foto.files[0]; if (f && f.type.startsWith('image/')) { prev.src = URL.createObjectURL(f); prev.classList.remove('hidden'); } else { prev.classList.add('hidden'); } };
 </script>
 @endpush

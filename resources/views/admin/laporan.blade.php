@@ -11,8 +11,11 @@
 <p class="hidden print:block font-serif text-2xl text-burgundy mb-4">Laporan Keuangan {{ ucfirst($mode) }} – {{ $mode === 'harian' ? tgl_long($ref) : $ref->translatedFormat('F Y') }}</p>
 
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    @foreach ([['Total Pemasukan', rupiah($total), '💰'], ['Jumlah Transaksi', $list->count(), '🧾'], ['Total DP', rupiah($totalDp), '📥'], ['Total Pelunasan', rupiah($totalLunas), '✅']] as [$a, $b, $i])
-        <div class="card p-5"><p class="text-2xl">{{ $i }}</p><p class="font-serif text-xl sm:text-2xl text-burgundy mt-1 break-words">{{ $b }}</p><p class="text-xs text-charcoal/60 mt-1">{{ $a }}</p></div>
+    @foreach ([['Total Pemasukan', rupiah($total)], ['Jumlah Transaksi', $list->count()], ['Total DP', rupiah($totalDp)], ['Total Pelunasan', rupiah($totalLunas)]] as [$a, $b])
+    <div class="card p-5">
+        <p class="font-serif text-xl sm:text-2xl text-burgundy break-words">{{ $b }}</p>
+        <p class="text-xs text-charcoal/60 mt-1">{{ $a }}</p>
+    </div>
     @endforeach
 </div>
 

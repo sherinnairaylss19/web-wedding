@@ -28,6 +28,12 @@
                 {!! $row('Catatan', e($p->catatan ?: '-')) !!}
                 <div class="flex justify-between items-center pt-4"><dt class="font-medium text-burgundy">Estimasi Total</dt><dd class="font-serif text-2xl text-burgundy">{{ rupiah($p->total_biaya) }}</dd></div>
             </dl>
+            @if (session('baru'))
+            <div id="auto-wa" class="mt-8 rounded-xl border border-gold/50 bg-gold/10 px-4 py-3 text-center text-sm text-burgundy">
+                Membuka WhatsApp owner dalam <strong id="cd">3</strong> detik…
+                <button type="button" id="batal" class="underline ml-2">Batalkan</button>
+            </div>
+            @endif
             <div class="flex flex-col sm:flex-row gap-3 mt-8">
                 <a href="{{ $p->waUrl() }}" target="_blank" rel="noopener" class="btn btn-p flex-1 py-3.5 border border-gold/40">💬 Konsultasi via WhatsApp</a>
                 <a href="{{ route('beranda') }}" class="btn btn-o flex-1 py-3.5">Kembali ke Beranda</a>
@@ -37,5 +43,19 @@
 </section>
 @endsection
 @push('scripts')
+@if (session('baru'))
+<script>
+(() => {
+    let s = 3, batal = false;
+    const cd = document.getElementById('cd'), box = document.getElementById('auto-wa');
+    document.getElementById('batal').onclick = () => { batal = true; box.remove(); };
+    const t = setInterval(() => {
+        if (batal) return clearInterval(t);
+        cd.textContent = --s;
+        if (s <= 0) { clearInterval(t); window.location.href = @json($p->waUrl()); }
+    }, 1000);
+})();
+</script>
+@endif
 <script>document.getElementById('copy').onclick = () => { navigator.clipboard && navigator.clipboard.writeText('{{ $p->kode }}'); document.getElementById('hint').textContent = 'Kode disalin ✓'; };</script>
 @endpush

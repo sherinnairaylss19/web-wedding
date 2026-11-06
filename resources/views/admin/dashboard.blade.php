@@ -3,7 +3,10 @@
 @section('content')
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     @foreach ($status as $s => $n)
-        <a href="{{ route('admin.pemesanan.index', ['status' => $s]) }}" class="card p-5 hover:border-gold transition block"><p class="text-2xl">{{ ['Menunggu Konfirmasi' => '⏳', 'Dikonfirmasi' => '✅', 'Selesai' => '🎉', 'Dibatalkan' => '✖️'][$s] }}</p><p class="font-serif text-3xl text-burgundy mt-1">{{ $n }}</p><p class="text-xs text-charcoal/60 mt-1">{{ $s }}</p></a>
+    <a href="{{ route('admin.pemesanan.index', ['status' => $s]) }}" class="card p-5 hover:border-gold transition block">
+        <p class="font-serif text-3xl text-burgundy">{{ $n }}</p>
+        <p class="text-xs text-charcoal/60 mt-1">{{ $s }}</p>
+    </a>
     @endforeach
 </div>
 <div class="grid sm:grid-cols-2 gap-4 mb-8">

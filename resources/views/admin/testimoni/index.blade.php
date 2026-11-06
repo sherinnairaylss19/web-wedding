@@ -14,6 +14,7 @@
             <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1"><span class="font-medium text-burgundy">{{ $t->pemesanan->klien->nama }}</span><x-stars :n="$t->rating" /><x-badge :t="$t->status_tampil" /><span class="font-mono text-[11px] text-charcoal/50">{{ $t->pemesanan->kode }}</span></div>
                 <p class="text-sm text-charcoal/75 mt-1.5 leading-relaxed">{{ $t->isi }}</p>
+                @if ($t->foto_url)<a href="{{ $t->foto_url }}" target="_blank" rel="noopener" class="inline-block mt-3" title="Buka foto bukti"><img src="{{ $t->foto_url }}" alt="Foto bukti" loading="lazy" class="h-24 rounded-lg border border-gold/40 object-cover" onerror="this.parentElement.remove()"></a>@endif
             </div>
             <div class="flex gap-2 shrink-0">
                 @foreach ($aksi[$t->status_tampil] as [$to, $label, $cls])

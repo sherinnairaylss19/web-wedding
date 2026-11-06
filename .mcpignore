@@ -1,0 +1,30 @@
+# Dependensi & Vendor
+/node_modules
+/vendor
+
+# Environment & Konfigurasi Lokal (Sensitif)
+.env
+.env.backup
+.env.production
+
+# Storage & Cache Laravel
+/storage/*.key
+/storage/app/*
+/storage/framework/*
+/storage/logs/*
+/bootstrap/cache/*
+
+# Build assets & Frontend compiled
+/public/build
+/public/hot
+/public/storage
+
+# File Sistem / IDE
+.DS_Store
+Thumbs.db
+/.idea
+/.vscode
+
+# Git
+.git
+.gitignore
