@@ -37,6 +37,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('pemesanan/{pemesanan}', [Admin\PemesananController::class, 'show'])->name('pemesanan.show');
         Route::patch('pemesanan/{pemesanan}/status', [Admin\PemesananController::class, 'status'])->name('pemesanan.status');
         Route::post('pemesanan/{pemesanan}/pembayaran', [Admin\PemesananController::class, 'bayar'])->name('pemesanan.bayar');
+        Route::put('pemesanan/{pemesanan}/pembayaran/{pembayaran}', [Admin\PemesananController::class, 'ubahPembayaran'])->name('pemesanan.pembayaran.update');
+        Route::delete('pemesanan/{pemesanan}/pembayaran/{pembayaran}', [Admin\PemesananController::class, 'hapusPembayaran'])->name('pemesanan.pembayaran.destroy');
+        Route::get('pembayaran/{pembayaran}/bukti', [Admin\PemesananController::class, 'bukti'])->name('pembayaran.bukti');
         Route::post('pemesanan/{pemesanan}/reschedule', [Admin\PemesananController::class, 'reschedule'])->name('pemesanan.reschedule');
         Route::get('pemesanan/{pemesanan}/invoice', [Admin\PemesananController::class, 'invoice'])->name('pemesanan.invoice');
 

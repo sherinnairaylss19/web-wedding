@@ -4,6 +4,7 @@
 <form method="GET" class="flex flex-col md:flex-row gap-3 mb-5">
     <input name="q" value="{{ request('q') }}" type="search" class="inp md:max-w-sm" placeholder="Cari kode atau nama klien...">
     <select name="status" class="inp md:max-w-xs" onchange="this.form.submit()"><option value="">Semua Status</option>@foreach (['Menunggu Konfirmasi', 'Dikonfirmasi', 'Selesai', 'Dibatalkan'] as $s)<option @selected(request('status') === $s)>{{ $s }}</option>@endforeach</select>
+    <select name="pembayaran" class="inp md:max-w-xs" onchange="this.form.submit()"><option value="">Semua Pembayaran</option>@foreach (['Belum Bayar', 'DP', 'Lunas'] as $s)<option @selected(request('pembayaran') === $s)>{{ $s }}</option>@endforeach</select>
     <button class="btn btn-p">Cari</button>
 </form>
 <div class="card overflow-hidden"><div class="overflow-x-auto"><table class="tbl"><thead><tr><th>Kode</th><th>Klien</th><th>Layanan</th><th>Tgl Acara</th><th>Total</th><th>Status</th><th>Pembayaran</th><th></th></tr></thead><tbody>
