@@ -57,7 +57,7 @@ class PelangganAuthController extends Controller
         Auth::guard('pelanggan')->login($pelanggan);
         $request->session()->regenerate();
 
-        return redirect()->intended('/testimoni');
+        return redirect()->to($request->session()->pull('pelanggan.intended', url('/testimoni')));
     }
 
     public function logout(Request $request)

@@ -10,12 +10,16 @@ use Symfony\Component\HttpFoundation\Response;
 class PelangganAuth
 {
     public function handle(Request $request, Closure $next): Response
-    {
-        if (!Auth::guard('pelanggan')->check()) {
-            return redirect()->guest(route('pelanggan.login'))
-                ->with('info', 'Silakan login terlebih dahulu untuk mengirim testimoni.');
+{
+    if (!Auth::guard('pelanggan')->check()) {
+        if ($request->isMethod('get')) {
+            $request->session()->put('pelanggan.intended', $request->fullUrl());
         }
 
-        return $next($request);
+        return redirect()->route('pelanggan.login')
+            ->with('info', 'Silakan login terlebih dahulu untuk mengirim testimoni.');
     }
+
+    return $next($request);
+}
 }
