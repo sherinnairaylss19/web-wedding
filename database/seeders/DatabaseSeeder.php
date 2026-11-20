@@ -21,8 +21,13 @@ class DatabaseSeeder extends Seeder
             ['Catering', 'Prasmanan Gold', 120000, '/ porsi', null, 'Menu premium dengan live station, dessert, dan pelayan berseragam.', 'photo-1414235077428-338989a2e8c0'],
             ['Catering', 'Tumpeng & Snack Box', 35000, '/ box', null, 'Cocok untuk syukuran, arisan, dan acara kantor.', 'photo-1555939594-58d7cb561ad1'],
         ];
+        // Unggulan beranda (nama => urutan): dua paket wedding dan dua catering, dipilih eksplisit, bukan dari label.
+        $unggulan = ['Wedding Lengkap' => 1, 'Wedding Premium Gedung' => 2, 'Prasmanan Reguler' => 3, 'Prasmanan Gold' => 4];
         foreach ($data as [$kat, $nama, $harga, $sat, $label, $desk, $foto]) {
-            Layanan::updateOrCreate(['nama' => $nama], ['kategori' => $kat, 'harga' => $harga, 'satuan' => $sat, 'label' => $label, 'deskripsi' => $desk, 'foto' => $foto]);
+            Layanan::updateOrCreate(['nama' => $nama], [
+                'kategori' => $kat, 'harga' => $harga, 'satuan' => $sat, 'label' => $label, 'deskripsi' => $desk, 'foto' => $foto,
+                'unggulan' => isset($unggulan[$nama]), 'urutan' => $unggulan[$nama] ?? 0,
+            ]);
         }
 
         // Testimoni contoh berstatus Tampil (setiap testimoni terhubung ke satu pemesanan)

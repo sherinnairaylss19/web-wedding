@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/** Pengeluaran usaha, dasar perhitungan laba kas di laporan keuangan. */
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('pengeluaran', function (Blueprint $t) {
+            $t->id();
+            $t->foreignId('admin_id')->constrained('admin');
+            $t->date('tanggal')->index();
+            $t->string('kategori', 40)->index();
+            $t->string('keterangan', 255);
+            $t->unsignedBigInteger('nominal');
+            $t->timestamps();
+            $t->softDeletes();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('pengeluaran');
+    }
+};
