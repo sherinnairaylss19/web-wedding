@@ -13,7 +13,13 @@
                     <div class="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden"><div class="h-full bg-gold" style="width: {{ $tampil->count() ? $c / $tampil->count() * 100 : 0 }}%"></div></div><span class="w-5 text-right text-charcoal/50">{{ $c }}</span></div>
             @endforeach
         </div>
-        <button type="button" onclick="openModal('fm')" class="btn btn-p py-3.5 border border-gold/40">✍️ Kirim Testimoni</button>
+
+         @auth('pelanggan')
+    <button type="button" onclick="openModal('fm')" class="btn btn-p py-3.5 border border-gold/40">✍️ Kirim Testimoni</button>
+@else
+    <a href="{{ route('testimoni.kirim') }}" class="btn btn-p py-3.5 border border-gold/40 text-center">✍️ Kirim Testimoni</a>
+@endauth
+
     </div>
 </section>
 
@@ -22,7 +28,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">@foreach ($tampil as $t)<x-testi-card :t="$t" />@endforeach</div>
 </div></section>
 
-<div id="fm" class="modal {{ $errors->any() || request()->filled('kode') ? 'open' : '' }}"><div class="bg-white rounded-2xl w-full max-w-lg p-6 sm:p-8 relative my-8">
+<div id="fm" class="modal {{ $errors->any() || request()->filled('kode') || session('buka_form') ? 'open' : '' }}"><div class="bg-white rounded-2xl w-full max-w-lg p-6 sm:p-8 relative my-8">
     <button type="button" data-close class="absolute top-4 right-5 text-2xl text-charcoal/40 hover:text-burgundy" aria-label="Tutup">×</button>
     <h3 class="font-serif text-2xl text-burgundy">Kirim Testimoni &amp; Rating</h3>
     <p class="text-xs text-charcoal/60 mt-1 mb-5">Testimoni akan tampil di halaman publik setelah disetujui admin.</p>
