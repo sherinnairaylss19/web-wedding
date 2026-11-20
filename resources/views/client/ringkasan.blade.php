@@ -17,6 +17,7 @@
                 <p class="text-xs uppercase tracking-[0.3em] text-gold-dark mb-2">Kode Pemesanan</p>
                 <button type="button" id="copy" class="font-mono text-2xl sm:text-3xl font-semibold text-burgundy border-2 border-dashed border-gold rounded-xl px-6 py-3 hover:bg-gold/10 transition">{{ $p->kode }}</button>
                 <p class="text-xs text-charcoal/50 mt-2" id="hint">Klik kode untuk menyalin. Kode dipakai untuk mengirim testimoni setelah acara.</p>
+                <p class="text-xs text-charcoal/50 mt-1">Pantau status pesanan kapan saja lewat menu <a href="{{ route('pemesanan.cek') }}" class="text-burgundy underline">Cek Pesanan</a> dengan kode ini dan nomor WhatsApp Anda.</p>
             </div>
             <dl>
                 {!! $row('Status Pemesanan', e($p->status_pemesanan)) !!}
@@ -26,6 +27,7 @@
                 {!! $row('Tanggal Acara', e(tgl_long($p->tanggal_acara))) !!}
                 {!! $row('Lokasi Acara', e($p->lokasi_acara)) !!}
                 {!! $row('Catatan', e($p->catatan ?: '-')) !!}
+                @if ($p->diskon > 0){!! $row('Diskon', '− ' . e(rupiah($p->diskon))) !!}@endif
                 <div class="flex justify-between items-center pt-4"><dt class="font-medium text-burgundy">Estimasi Total</dt><dd class="font-serif text-2xl text-burgundy">{{ rupiah($p->total_biaya) }}</dd></div>
             </dl>
             @if (session('baru'))

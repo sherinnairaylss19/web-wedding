@@ -4,7 +4,12 @@
 @section('judul', 'Pemesanan & Konsultasi')
 @section('sub', 'Isi data pemesan dan detail acara. Setelah tersimpan, Anda bisa langsung berkonsultasi lewat WhatsApp.')
 @section('content')
-@php $field = fn($n) => $errors->has($n) ? 'border-red-500' : ''; @endphp
+@php
+    $field = fn($n) => $errors->has($n) ? 'border-red-500' : '';
+    $daftar = $layanan->map(fn ($l) => ['id' => $l->id, 'nama' => $l->nama, 'kategori' => $l->kategori, 'harga' => (int) $l->harga, 'satuan' => $l->satuan])->values();
+    $awal = array_values(old('items', [])) ?: [['layanan_id' => $dipilih, 'jumlah' => 1]];
+    $errItems = collect($errors->get('items.*'))->flatten()->unique()->values();
+@endphp
 <section class="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid lg:grid-cols-3 gap-8 items-start">
     <form method="POST" action="{{ route('pemesanan.store') }}" class="lg:col-span-2 card p-6 sm:p-10 space-y-6">
         @csrf
@@ -16,18 +21,20 @@
         <div><label class="lbl" for="alamat">Alamat</label><textarea id="alamat" name="alamat" rows="2" class="inp resize-none">{{ old('alamat') }}</textarea></div>
 
         <div class="pt-2"><h2 class="font-serif text-xl text-burgundy">Detail Acara</h2><div class="h-px bg-gradient-to-r from-gold/60 to-transparent mt-2"></div></div>
-        <div class="grid sm:grid-cols-3 gap-5">
-            <div class="sm:col-span-2"><label class="lbl" for="layanan">Layanan <span class="text-red-600">*</span></label>
-                <select id="layanan" name="layanan_id" class="inp {{ $field('layanan_id') }}">
-                    <option value="">— Pilih layanan —</option>
-                    @foreach ($layanan->groupBy('kategori') as $kat => $items)
-                        <optgroup label="{{ $kat }}">@foreach ($items as $l)
-                            <option value="{{ $l->id }}" data-harga="{{ $l->harga }}" data-kat="{{ $l->kategori }}" data-nama="{{ $l->nama }}" data-desk="{{ $l->deskripsi }}" data-foto="{{ $l->foto_url }}" data-satuan="{{ $l->satuan }}" @selected(old('layanan_id', $dipilih) == $l->id)>{{ $l->nama }} ({{ rupiah($l->harga) }} {{ $l->satuan }})</option>
-                        @endforeach</optgroup>
-                    @endforeach
-                </select>@error('layanan_id')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
-            <div><label class="lbl" for="jumlah" id="jumlahLbl">Jumlah</label><input id="jumlah" name="jumlah" type="number" min="1" value="{{ old('jumlah', 1) }}" class="inp {{ $field('jumlah') }}">@error('jumlah')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
+
+        <div>
+            <label class="lbl">Layanan <span class="text-red-600">*</span></label>
+            @if ($errors->has('items') || $errItems->isNotEmpty())
+                <div class="rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-3 mb-3" role="alert">
+                    @if ($errors->has('items'))<p>{{ $errors->first('items') }}</p>@endif
+                    @foreach ($errItems as $m)<p>{{ $m }}</p>@endforeach
+                </div>
+            @endif
+            <div id="rows" class="space-y-3"></div>
+            <button type="button" id="addRow" class="mt-3 text-sm font-medium text-burgundy hover:text-gold-dark transition">＋ Tambah layanan lain</button>
+            <p class="text-[11px] text-charcoal/50 mt-2">Paket Wedding dipesan per paket (jumlah 1). Untuk Catering, isi jumlah porsi atau box. Anda bisa menggabungkan beberapa layanan dalam satu pemesanan.</p>
         </div>
+
         <div class="grid sm:grid-cols-2 gap-5">
             <div><label class="lbl" for="tanggal_acara">Tanggal Acara <span class="text-red-600">*</span></label><input id="tanggal_acara" name="tanggal_acara" type="date" min="{{ today()->toDateString() }}" value="{{ old('tanggal_acara') }}" class="inp {{ $field('tanggal_acara') }}">@error('tanggal_acara')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
             <div><label class="lbl" for="lokasi_acara">Lokasi Acara <span class="text-red-600">*</span></label><input id="lokasi_acara" name="lokasi_acara" value="{{ old('lokasi_acara') }}" class="inp {{ $field('lokasi_acara') }}" placeholder="Gedung / alamat acara">@error('lokasi_acara')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
@@ -41,20 +48,98 @@
 @endsection
 @push('scripts')
 <script>
-const sel = document.getElementById('layanan'), jml = document.getElementById('jumlah'), rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-function panel() {
-    const o = sel.selectedOptions[0], n = Math.max(1, parseInt(jml.value, 10) || 1), el = document.getElementById('panel');
-    if (!o || !o.value) { el.innerHTML = '<p class="text-sm text-charcoal/60">Belum ada layanan dipilih. Pilih layanan pada formulir untuk melihat estimasi biaya.</p>'; return; }
-    document.getElementById('jumlahLbl').textContent = o.dataset.kat === 'Catering' ? 'Jumlah Porsi / Box' : 'Jumlah Paket';
-    const h = +o.dataset.harga, t = document.createElement('div');
-    t.textContent = ''; const esc = s => { t.textContent = s; return t.innerHTML; };
-    el.innerHTML = '<div class="img-fallback rounded-xl overflow-hidden aspect-[4/3] mb-4">' + (o.dataset.foto ? '<img src="' + esc(o.dataset.foto) + '" class="w-full h-full object-cover" onerror="this.remove()">' : '') + '</div>'
-        + '<h3 class="font-serif text-lg text-burgundy">' + esc(o.dataset.nama) + '</h3><p class="text-xs text-charcoal/60 mt-1">' + esc(o.dataset.desk) + '</p>'
-        + '<dl class="mt-4 pt-4 border-t border-gold/30 text-sm space-y-2"><div class="flex justify-between"><dt class="text-charcoal/60">Harga satuan</dt><dd>' + rp(h) + ' ' + esc(o.dataset.satuan) + '</dd></div>'
-        + '<div class="flex justify-between"><dt class="text-charcoal/60">Jumlah</dt><dd>' + n + '</dd></div>'
-        + '<div class="flex justify-between pt-3 border-t border-gold/30"><dt class="font-medium text-burgundy">Estimasi Total</dt><dd class="font-serif text-xl text-burgundy">' + rp(h * n) + '</dd></div></dl>';
-}
-sel.onchange = () => { const o = sel.selectedOptions[0]; if (o && o.value) jml.value = o.dataset.kat === 'Catering' ? 100 : 1; panel(); };
-jml.oninput = panel; panel();
+(() => {
+    const DATA = @json($daftar), AWAL = @json($awal), MAX = 10;
+    const byId = Object.fromEntries(DATA.map(l => [String(l.id), l]));
+    const rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const rowsEl = document.getElementById('rows'), panel = document.getElementById('panel'), addBtn = document.getElementById('addRow');
+    let seq = 0;
+
+    const h = (tag, cls, attrs = {}) => {
+        const e = document.createElement(tag);
+        if (cls) e.className = cls;
+        Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+        return e;
+    };
+
+    function buildSelect(name, selected) {
+        const s = h('select', 'inp flex-1 min-w-0', { name, 'aria-label': 'Layanan' });
+        s.appendChild(new Option('— Pilih layanan —', ''));
+        const groups = {};
+        DATA.forEach(l => { (groups[l.kategori] = groups[l.kategori] || []).push(l); });
+        Object.entries(groups).forEach(([kat, items]) => {
+            const g = h('optgroup', '', { label: kat });
+            items.forEach(l => g.appendChild(new Option((l.nama + ' (' + rp(l.harga) + ' ' + (l.satuan || '') + ')').replace(' )', ')'), l.id)));
+            s.appendChild(g);
+        });
+        s.value = selected ? String(selected) : '';
+        return s;
+    }
+
+    function addRow(v = {}) {
+        const i = seq++, row = h('div', 'row flex flex-col sm:flex-row gap-3 sm:items-center');
+        const sel = buildSelect('items[' + i + '][layanan_id]', v.layanan_id);
+        const qty = h('input', 'inp sm:w-28', { type: 'number', min: 1, max: 100000, name: 'items[' + i + '][jumlah]', 'aria-label': 'Jumlah' });
+        qty.value = v.jumlah || 1;
+        const del = h('button', 'text-charcoal/40 hover:text-red-600 text-2xl leading-none px-2 self-end sm:self-auto', { type: 'button', 'aria-label': 'Hapus baris layanan' });
+        del.textContent = '×';
+        sel.onchange = () => { const l = byId[sel.value]; if (l) qty.value = l.kategori === 'Catering' ? 100 : 1; sync(); };
+        qty.oninput = render;
+        del.onclick = () => { row.remove(); sync(); };
+        row.append(sel, qty, del);
+        rowsEl.appendChild(row);
+        sync();
+    }
+
+    function sync() {
+        rowsEl.querySelectorAll('.row').forEach(r => {
+            const l = byId[r.querySelector('select').value], q = r.querySelector('input');
+            q.readOnly = !!l && l.kategori === 'Wedding';
+            if (q.readOnly) q.value = 1;
+        });
+        const n = rowsEl.children.length;
+        rowsEl.querySelectorAll('button').forEach(b => b.classList.toggle('invisible', n <= 1));
+        addBtn.classList.toggle('hidden', n >= MAX);
+        render();
+    }
+
+    function render() {
+        // Gabungkan layanan yang sama, sama persis dengan aturan di server (Wedding selalu 1).
+        const merged = {};
+        rowsEl.querySelectorAll('.row').forEach(r => {
+            const l = byId[r.querySelector('select').value];
+            if (!l) return;
+            const n = Math.max(1, parseInt(r.querySelector('input').value, 10) || 1);
+            merged[l.id] = { l, n: l.kategori === 'Wedding' ? 1 : (merged[l.id] ? merged[l.id].n : 0) + n };
+        });
+        const items = Object.values(merged);
+        panel.replaceChildren();
+        if (!items.length) {
+            const p = h('p', 'text-sm text-charcoal/60');
+            p.textContent = 'Belum ada layanan dipilih. Pilih layanan pada formulir untuk melihat estimasi biaya.';
+            panel.appendChild(p);
+            return;
+        }
+        const ul = h('ul', 'space-y-4 text-sm');
+        let total = 0;
+        items.forEach(({ l, n }) => {
+            const sub = l.harga * n; total += sub;
+            const li = h('li', 'flex justify-between gap-3'), left = h('div'), right = h('span', 'whitespace-nowrap');
+            const nm = h('p', 'font-medium text-burgundy'), dt = h('p', 'text-xs text-charcoal/60');
+            nm.textContent = l.nama;
+            dt.textContent = n + ' × ' + rp(l.harga) + (l.satuan ? ' ' + l.satuan : '');
+            right.textContent = rp(sub);
+            left.append(nm, dt); li.append(left, right); ul.appendChild(li);
+        });
+        const foot = h('div', 'mt-5 pt-4 border-t border-gold/30 flex justify-between items-baseline');
+        const lbl = h('span', 'font-medium text-burgundy text-sm'), val = h('span', 'font-serif text-xl text-burgundy');
+        lbl.textContent = 'Estimasi Total'; val.textContent = rp(total);
+        foot.append(lbl, val);
+        panel.append(ul, foot);
+    }
+
+    addBtn.onclick = () => { if (rowsEl.children.length < MAX) addRow({}); };
+    (AWAL.length ? AWAL : [{}]).forEach(addRow);
+})();
 </script>
 @endpush

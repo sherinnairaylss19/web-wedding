@@ -20,8 +20,19 @@ class LayananController extends Controller
             'harga' => 'required|integer|min:1',
             'satuan' => 'nullable|string|max:30',
             'label' => 'nullable|string|max:40',
+            'unggulan' => 'nullable|boolean',
+            'urutan' => 'nullable|integer|min:0|max:65535',
             'foto' => 'nullable|image|max:2048',
         ];
+    }
+
+    /** Checkbox yang tidak dicentang tidak terkirim sama sekali, jadi nilainya dibaca dari boolean(); urutan kosong = 0. */
+    private function normalisasi(Request $request, array $d): array
+    {
+        $d['satuan'] = $d['satuan'] ?? '';
+        $d['unggulan'] = $request->boolean('unggulan');
+        $d['urutan'] = (int) ($d['urutan'] ?? 0);
+        return $d;
     }
 
     public function index()
@@ -31,8 +42,7 @@ class LayananController extends Controller
 
     public function store(Request $request)
     {
-        $d = $request->validate($this->rules());
-        $d['satuan'] = $d['satuan'] ?? '';
+        $d = $this->normalisasi($request, $request->validate($this->rules()));
         if ($request->hasFile('foto')) $d['foto'] = $request->file('foto')->store('layanan', 'public');
         Layanan::create($d);
         return back()->with('ok', 'Layanan ditambahkan.');
@@ -40,8 +50,7 @@ class LayananController extends Controller
 
     public function update(Request $request, Layanan $layanan)
     {
-        $d = $request->validate($this->rules());
-        $d['satuan'] = $d['satuan'] ?? '';
+        $d = $this->normalisasi($request, $request->validate($this->rules()));
         if ($request->hasFile('foto')) {
             if ($layanan->foto && !str_starts_with($layanan->foto, 'photo-') && !str_starts_with($layanan->foto, 'http')) Storage::disk('public')->delete($layanan->foto);
             $d['foto'] = $request->file('foto')->store('layanan', 'public');
@@ -52,10 +61,19 @@ class LayananController extends Controller
         return back()->with('ok', 'Layanan diperbarui.');
     }
 
+    /** Tampilkan / sembunyikan layanan di katalog publik tanpa menghapus riwayat pesanan. */
+    public function aktif(Layanan $layanan)
+    {
+        $layanan->update(['aktif' => ! $layanan->aktif]);
+        return back()->with('ok', $layanan->aktif
+            ? "Layanan \"{$layanan->nama}\" diaktifkan dan tampil di katalog."
+            : "Layanan \"{$layanan->nama}\" dinonaktifkan dan disembunyikan dari katalog.");
+    }
+
     public function destroy(Layanan $layanan)
     {
-        if ($layanan->id && \App\Models\DetailPemesanan::where('layanan_id', $layanan->id)->exists()) {
-            return back()->withErrors(['hapus' => 'Layanan sudah dipakai pada pemesanan sehingga tidak dapat dihapus.']);
+        if (\App\Models\DetailPemesanan::where('layanan_id', $layanan->id)->exists()) {
+            return back()->withErrors(['hapus' => 'Layanan sudah dipakai pada pemesanan sehingga tidak dapat dihapus. Gunakan tombol Nonaktifkan agar tidak tampil di katalog.']);
         }
         $layanan->delete();
         return back()->with('ok', 'Layanan dihapus.');

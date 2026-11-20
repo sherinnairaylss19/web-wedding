@@ -17,11 +17,13 @@
     </div>
 </section>
 
+@if ($unggulan->isNotEmpty())
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
     <div class="text-center mb-10"><p class="text-gold-dark tracking-[0.3em] text-xs uppercase mb-3">Ringkasan Layanan</p><h2 class="font-serif text-3xl sm:text-4xl text-burgundy">Paket Pilihan Kami</h2><div class="gold-line mx-auto mt-5"></div></div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">@foreach ($unggulan as $p)<x-package-card :p="$p" />@endforeach</div>
     <div class="text-center mt-10"><a href="{{ route('katalog') }}" class="btn btn-o">Lihat Semua Paket →</a></div>
 </section>
+@endif
 
 @if ($testimoni->count())
 <section class="bg-burgundy relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

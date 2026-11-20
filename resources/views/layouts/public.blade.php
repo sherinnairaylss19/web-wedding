@@ -8,7 +8,7 @@
     <x-tw />
 </head>
 @php
-    $nav = [['beranda', 'Beranda'], ['katalog', 'Katalog'], ['gallery', 'Gallery'], ['testimoni', 'Testimoni'], ['profil', 'Profil Usaha'], ['pemesanan.create', 'Pesan']];
+    $nav = [['beranda', 'Beranda'], ['katalog', 'Katalog'], ['gallery', 'Gallery'], ['testimoni', 'Testimoni'], ['profil', 'Profil Usaha'], ['pemesanan.cek', 'Cek Pesanan'], ['pemesanan.create', 'Pesan']];
 @endphp
 <body class="antialiased">
 <div class="bg-burgundy-dark text-white/90 text-xs">

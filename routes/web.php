@@ -17,6 +17,10 @@ Route::get('/pemesanan', [PemesananController::class, 'create'])->name('pemesana
 Route::post('/pemesanan', [PemesananController::class, 'store'])->middleware('throttle:10,1')->name('pemesanan.store');
 Route::get('/pemesanan/{pemesanan}', [PemesananController::class, 'ringkasan'])->name('pemesanan.ringkasan')->middleware('signed');
 
+Route::get('/cek-pesanan', [PemesananController::class, 'cek'])->name('pemesanan.cek');
+Route::post('/cek-pesanan', [PemesananController::class, 'cekProses'])->middleware('throttle:5,1')->name('pemesanan.cek.proses');
+Route::get('/cek-pesanan/{pemesanan}', [PemesananController::class, 'status'])->middleware('signed')->name('pemesanan.status');
+
 Route::get('/testimoni', [TestimoniController::class, 'index'])->name('testimoni');
 Route::post('/testimoni', [TestimoniController::class, 'store'])->middleware('throttle:10,1')->name('testimoni.store');
 
@@ -40,10 +44,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('pemesanan/{pemesanan}/pembayaran/{pembayaran}', [Admin\PemesananController::class, 'ubahPembayaran'])->name('pemesanan.pembayaran.update');
         Route::delete('pemesanan/{pemesanan}/pembayaran/{pembayaran}', [Admin\PemesananController::class, 'hapusPembayaran'])->name('pemesanan.pembayaran.destroy');
         Route::get('pembayaran/{pembayaran}/bukti', [Admin\PemesananController::class, 'bukti'])->name('pembayaran.bukti');
+        Route::post('pemesanan/{pemesanan}/pengembalian', [Admin\PemesananController::class, 'pengembalian'])->name('pemesanan.pengembalian');
+        Route::put('pemesanan/{pemesanan}/rincian', [Admin\PemesananController::class, 'ubahRincian'])->name('pemesanan.rincian');
         Route::post('pemesanan/{pemesanan}/reschedule', [Admin\PemesananController::class, 'reschedule'])->name('pemesanan.reschedule');
         Route::get('pemesanan/{pemesanan}/invoice', [Admin\PemesananController::class, 'invoice'])->name('pemesanan.invoice');
+        Route::post('pemesanan/{pemesanan}/invoice/revisi', [Admin\PemesananController::class, 'revisiInvoice'])->name('pemesanan.invoice.revisi');
 
         Route::get('laporan', [Admin\LaporanController::class, 'index'])->name('laporan');
+        Route::get('laporan/ekspor', [Admin\LaporanController::class, 'ekspor'])->name('laporan.ekspor');
+        Route::get('laporan/pdf', [Admin\LaporanController::class, 'pdf'])->name('laporan.pdf');
+        Route::resource('pengeluaran', Admin\PengeluaranController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::patch('galeri/{galeri}/aktif', [Admin\GaleriController::class, 'aktif'])->name('galeri.aktif');
+        Route::resource('galeri', Admin\GaleriController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::patch('layanan/{layanan}/aktif', [Admin\LayananController::class, 'aktif'])->name('layanan.aktif');
         Route::resource('layanan', Admin\LayananController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('klien', Admin\KlienController::class)->only(['index', 'update']);
         Route::get('testimoni', [Admin\TestimoniController::class, 'index'])->name('testimoni.index');

@@ -22,13 +22,13 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">@foreach ($tampil as $t)<x-testi-card :t="$t" />@endforeach</div>
 </div></section>
 
-<div id="fm" class="modal {{ $errors->any() ? 'open' : '' }}"><div class="bg-white rounded-2xl w-full max-w-lg p-6 sm:p-8 relative my-8">
+<div id="fm" class="modal {{ $errors->any() || request()->filled('kode') ? 'open' : '' }}"><div class="bg-white rounded-2xl w-full max-w-lg p-6 sm:p-8 relative my-8">
     <button type="button" data-close class="absolute top-4 right-5 text-2xl text-charcoal/40 hover:text-burgundy" aria-label="Tutup">×</button>
     <h3 class="font-serif text-2xl text-burgundy">Kirim Testimoni &amp; Rating</h3>
     <p class="text-xs text-charcoal/60 mt-1 mb-5">Testimoni akan tampil di halaman publik setelah disetujui admin.</p>
     <form method="POST" action="{{ route('testimoni.store') }}" enctype="multipart/form-data" class="space-y-4">
         @csrf
-        <div><label class="lbl" for="kode">Kode Pemesanan <span class="text-red-600">*</span></label><input id="kode" name="kode" value="{{ old('kode') }}" class="inp font-mono" placeholder="IKG-2026-001">@error('kode')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
+        <div><label class="lbl" for="kode">Kode Pemesanan <span class="text-red-600">*</span></label><input id="kode" name="kode" value="{{ old('kode', request('kode')) }}" class="inp font-mono" placeholder="IKG-2026-001">@error('kode')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror</div>
         <div><label class="lbl">Rating <span class="text-red-600">*</span></label>
             <input type="hidden" name="rating" id="rating" value="{{ old('rating') }}">
             <div id="pick" class="flex gap-1">@for ($i = 1; $i <= 5; $i++)<button type="button" data-r="{{ $i }}" class="p-0.5"><svg class="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.5 6 .8-4.4 4.2 1.1 6L10 15l-5.3 3 1.1-6L1.4 7.8l6-.8L10 1.5z"/></svg></button>@endfor</div>

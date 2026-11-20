@@ -9,7 +9,7 @@ class Testimoni extends Model
     protected $table = 'testimoni';
     protected $guarded = [];
 
-    public function pemesanan() { return $this->belongsTo(Pemesanan::class); }
+    public function pemesanan() { return $this->belongsTo(Pemesanan::class)->withTrashed(); }
     public function scopeTampil($q) { return $q->where('status_tampil', 'Tampil'); }
 
     /** URL foto bukti (disimpan di disk "public"); null jika klien tidak melampirkan foto. */

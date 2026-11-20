@@ -8,8 +8,8 @@
     <x-tw />
 </head>
 @php
-    $menu = [['admin.dashboard', 'admin.dashboard', '📊', 'Dashboard'], ['admin.pemesanan.index', 'admin.pemesanan.*', '📋', 'Pemesanan'], ['admin.laporan', 'admin.laporan', '💰', 'Laporan Keuangan'],
-             ['admin.layanan.index', 'admin.layanan.*', '🛎️', 'Katalog Layanan'], ['admin.klien.index', 'admin.klien.*', '👥', 'Data Klien'], ['admin.testimoni.index', 'admin.testimoni.*', '⭐', 'Testimoni']];
+    $menu = [['admin.dashboard', 'admin.dashboard', '📊', 'Dashboard'], ['admin.pemesanan.index', 'admin.pemesanan.*', '📋', 'Pemesanan'], ['admin.laporan', 'admin.laporan*', '💰', 'Laporan Keuangan'], ['admin.pengeluaran.index', 'admin.pengeluaran.*', '💸', 'Pengeluaran'],
+             ['admin.layanan.index', 'admin.layanan.*', '🛎️', 'Katalog Layanan'], ['admin.galeri.index', 'admin.galeri.*', '🖼️', 'Galeri'], ['admin.klien.index', 'admin.klien.*', '👥', 'Data Klien'], ['admin.testimoni.index', 'admin.testimoni.*', '⭐', 'Testimoni']];
 @endphp
 <body class="antialiased">
 <div class="flex min-h-screen">

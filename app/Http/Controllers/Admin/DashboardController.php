@@ -3,24 +3,36 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Pembayaran, Pemesanan};
+use App\Models\{Pembayaran, Pemesanan, Pengembalian};
+use App\Services\KeuanganService;
 
 class DashboardController extends Controller
 {
+    public function __construct(private KeuanganService $keuangan) {}
+
     public function index()
     {
         $status = collect(['Menunggu Konfirmasi', 'Dikonfirmasi', 'Selesai', 'Dibatalkan'])
             ->mapWithKeys(fn($s) => [$s => Pemesanan::where('status_pemesanan', $s)->count()]);
 
-        $perHari = Pembayaran::whereYear('tanggal_bayar', now()->year)->whereMonth('tanggal_bayar', now()->month)
-            ->get()->groupBy(fn($p) => $p->tanggal_bayar->day)->map->sum('nominal');
-        $grafik = collect(range(1, now()->daysInMonth))->map(fn($d) => (float) ($perHari[$d] ?? 0))->values();
+        // Satu sumber hitungan dengan halaman Laporan (KeuanganService), jadi angka dashboard dan laporan selalu sama.
+        // Pemasukan bersih = pembayaran masuk - pengembalian dana. Laba kas = pemasukan bersih - pengeluaran usaha.
+        $lap = $this->keuangan->laporan('bulanan', now());
+        $grafik = $lap['grafik'];
 
         return view('admin.dashboard', [
-            'grafik' => $grafik,
             'status' => $status,
-            'hariIni' => Pembayaran::whereDate('tanggal_bayar', today())->sum('nominal'),
-            'bulanIni' => Pembayaran::whereYear('tanggal_bayar', now()->year)->whereMonth('tanggal_bayar', now()->month)->sum('nominal'),
+            'hariIni' => Pembayaran::dihitung()->whereDate('tanggal_bayar', today())->sum('nominal') - Pengembalian::dihitung()->whereDate('tanggal_pengembalian', today())->sum('nominal'),
+            'bulanIni' => $lap['bersih'],
+            'pengeluaranBulan' => $lap['keluar'],
+            'labaBulan' => $lap['laba'],
+            'grafik' => $grafik,
+            'adaGrafik' => collect($grafik['bersih'])->merge($grafik['keluar'])->contains(fn($v) => $v != 0),
+            'rekapTahun' => $this->keuangan->rekapTahun(now()->year),
+            'perLayanan' => $lap['perLayanan'],
+            'pengeluaranPerKategori' => $lap['pengeluaranPerKategori'],
+            'piutang' => $lap['piutang'],
+            'jatuhTempo' => Pemesanan::jatuhTempo()->count(),
             'terbaru' => Pemesanan::with('klien', 'detail.layanan')->latest()->take(6)->get(),
         ]);
     }
