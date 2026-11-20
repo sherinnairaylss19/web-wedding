@@ -32,7 +32,16 @@
             @endforeach
         </ul>
         <div class="flex items-center gap-3">
-            <a href="{{ route('admin.login') }}" class="hidden sm:inline-flex items-center gap-2 bg-gold hover:bg-gold-dark text-burgundy-dark font-semibold text-sm px-5 py-2.5 rounded-full transition shadow-md">Login Admin</a>
+            
+           @auth('pelanggan')
+    <form method="POST" action="{{ route('pelanggan.logout') }}" class="hidden sm:block">
+        @csrf
+        <button type="submit" class="inline-flex items-center gap-2 bg-gold hover:bg-gold-dark text-burgundy-dark font-semibold text-sm px-5 py-2.5 rounded-full transition shadow-md">Logout</button>
+    </form>
+@else
+    <a href="{{ route('pelanggan.login') }}" class="hidden sm:inline-flex items-center gap-2 bg-gold hover:bg-gold-dark text-burgundy-dark font-semibold text-sm px-5 py-2.5 rounded-full transition shadow-md">Login</a>
+@endauth
+
             <button id="menuBtn" class="md:hidden p-2 text-burgundy text-2xl" aria-label="Menu">☰</button>
         </div>
     </nav>

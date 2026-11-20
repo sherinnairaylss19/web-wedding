@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\PemesananController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\TestimoniController;
+use App\Http\Controllers\PelangganAuthController;
+use App\Http\Middleware\PelangganAuth;
 use Illuminate\Support\Facades\Route;
 
 /* ---------- Publik (calon klien, tanpa login) ---------- */
@@ -22,7 +24,19 @@ Route::post('/cek-pesanan', [PemesananController::class, 'cekProses'])->middlewa
 Route::get('/cek-pesanan/{pemesanan}', [PemesananController::class, 'status'])->middleware('signed')->name('pemesanan.status');
 
 Route::get('/testimoni', [TestimoniController::class, 'index'])->name('testimoni');
-Route::post('/testimoni', [TestimoniController::class, 'store'])->middleware('throttle:10,1')->name('testimoni.store');
+Route::post('/testimoni', [TestimoniController::class, 'store'])->middleware([PelangganAuth::class, 'throttle:10,1'])->name('testimoni.store');
+
+/* ---------- Login & daftar user (untuk kirim testimoni) ---------- */
+Route::get('/masuk', [PelangganAuthController::class, 'showLogin'])->name('pelanggan.login');
+Route::post('/masuk', [PelangganAuthController::class, 'login'])->middleware('throttle:10,1')->name('pelanggan.login.submit');
+Route::get('/daftar', [PelangganAuthController::class, 'showRegister'])->name('pelanggan.register');
+Route::post('/daftar', [PelangganAuthController::class, 'register'])->middleware('throttle:10,1')->name('pelanggan.register.submit');
+Route::post('/keluar', [PelangganAuthController::class, 'logout'])->name('pelanggan.logout');
+
+// Tombol "Kirim Testimoni" mengarah ke sini: belum login -> ke /masuk, sudah login -> kembali ke /testimoni dengan form terbuka
+Route::get('/testimoni/kirim', fn () => redirect()->route('testimoni')->with('buka_form', true))
+    ->middleware(PelangganAuth::class)
+    ->name('testimoni.kirim');
 
 /* ---------- Admin (wajib login) ---------- */
 Route::prefix('admin')->name('admin.')->group(function () {
